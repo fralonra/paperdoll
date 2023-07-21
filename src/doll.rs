@@ -1,14 +1,47 @@
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
 
-use crate::slot::SlotId;
+use crate::{
+    common::{is_zero, Point},
+    image::ImageData,
+};
 
-pub type DollId = u32;
-
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Doll {
-    pub id: DollId,
+    id: u32,
 
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub desc: String,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub width: u32,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub height: u32,
+    #[serde(default, skip_serializing_if = "Point::is_zero")]
+    pub offset: Point,
 
-    pub slots: Vec<SlotId>,
+    pub slots: BTreeSet<u32>,
+
+    pub path: String,
+    #[serde(skip)]
+    pub image: ImageData,
+}
+
+impl Doll {
+    pub(crate) fn new(id: u32) -> Self {
+        Self {
+            id,
+            desc: String::default(),
+            width: 400,
+            height: 400,
+            offset: Point::default(),
+            slots: BTreeSet::new(),
+            path: String::default(),
+            image: ImageData::default(),
+        }
+    }
+
+    pub fn id(&self) -> u32 {
+        self.id
+    }
 }

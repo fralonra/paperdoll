@@ -1,30 +1,25 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
-use crate::{
-    doll::{Doll, DollId},
-    fragment::{Fragment, FragmentId},
-    paperdoll::Paperdoll,
-    slot::{Slot, SlotId},
-};
+use crate::{doll::Doll, fragment::Fragment, paperdoll::Paperdoll, slot::Slot};
 
 pub struct PaperdollBuilder<'a> {
-    pub doll: DollId,
+    doll: u32,
 
-    pub slot_map: HashMap<SlotId, FragmentId>,
+    slot_map: HashMap<u32, u32>,
 
-    dolls: &'a HashMap<DollId, Doll>,
-    slots: &'a HashMap<SlotId, Slot>,
-    fragments: &'a HashMap<FragmentId, Fragment>,
+    dolls: &'a BTreeMap<u32, Doll>,
+    slots: &'a BTreeMap<u32, Slot>,
+    fragments: &'a BTreeMap<u32, Fragment>,
 }
 
 impl<'a> PaperdollBuilder<'a> {
     pub fn new(
-        dolls: &'a HashMap<DollId, Doll>,
-        slots: &'a HashMap<SlotId, Slot>,
-        fragments: &'a HashMap<FragmentId, Fragment>,
+        dolls: &'a BTreeMap<u32, Doll>,
+        slots: &'a BTreeMap<u32, Slot>,
+        fragments: &'a BTreeMap<u32, Fragment>,
     ) -> Self {
         Self {
-            doll: DollId::default(),
+            doll: u32::default(),
             slot_map: HashMap::new(),
             dolls,
             slots,
@@ -32,7 +27,7 @@ impl<'a> PaperdollBuilder<'a> {
         }
     }
 
-    pub fn doll(mut self, id: DollId) -> Self {
+    pub fn doll(mut self, id: u32) -> Self {
         if !self.dolls.contains_key(&id) {
             panic!("Invalid key for doll: {}", id);
         }
@@ -41,7 +36,7 @@ impl<'a> PaperdollBuilder<'a> {
         self
     }
 
-    pub fn set_slot(mut self, slot_id: SlotId, fragment_id: FragmentId) -> Self {
+    pub fn set_slot(mut self, slot_id: u32, fragment_id: u32) -> Self {
         if !self.slots.contains_key(&slot_id) {
             panic!("Invalid key for slot: {}", slot_id);
         }
