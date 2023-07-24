@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -20,7 +18,7 @@ pub struct Doll {
     #[serde(default, skip_serializing_if = "Point::is_zero")]
     pub offset: Point,
 
-    pub slots: BTreeSet<u32>,
+    pub slots: Vec<u32>,
 
     pub path: String,
     #[serde(skip)]
@@ -35,7 +33,7 @@ impl Doll {
             width: 400,
             height: 400,
             offset: Point::default(),
-            slots: BTreeSet::new(),
+            slots: vec![],
             path: String::default(),
             image: ImageData::default(),
         }

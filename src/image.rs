@@ -1,6 +1,5 @@
 #[derive(Clone, Copy, Debug, Default)]
 pub enum ColorType {
-    Rgb,
     #[default]
     Rgba,
 }

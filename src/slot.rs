@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use serde::{Deserialize, Serialize};
 
 use crate::common::{is_false, is_zero, Point};
@@ -26,7 +24,7 @@ pub struct Slot {
     #[serde(default, skip_serializing_if = "Point::is_zero")]
     pub anchor: Point,
 
-    pub candidates: BTreeSet<u32>,
+    pub candidates: Vec<u32>,
 }
 
 impl Slot {
@@ -40,7 +38,7 @@ impl Slot {
             width: 0,
             height: 0,
             anchor: Point::default(),
-            candidates: BTreeSet::new(),
+            candidates: vec![],
         }
     }
 
