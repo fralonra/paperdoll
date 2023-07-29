@@ -30,8 +30,8 @@ impl Doll {
         Self {
             id,
             desc: String::default(),
-            width: 400,
-            height: 400,
+            width: 0,
+            height: 0,
             offset: Point::default(),
             slots: vec![],
             path: String::default(),

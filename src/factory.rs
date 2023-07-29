@@ -183,6 +183,10 @@ impl PaperdollFactory {
         if let Some(doll) = self.dolls.remove(&id) {
             self.doll_id_factory.remove(id);
 
+            for slot_id in &doll.slots {
+                self.remove_slot(*slot_id);
+            }
+
             Some(doll)
         } else {
             None
@@ -193,6 +197,16 @@ impl PaperdollFactory {
         if let Some(fragment) = self.fragments.remove(&id) {
             self.fragment_id_factory.remove(id);
 
+            for slot in &mut self.slots.values_mut() {
+                if let Some(position) = slot
+                    .candidates
+                    .iter()
+                    .position(|fragment_id| *fragment_id == id)
+                {
+                    slot.candidates.remove(position);
+                }
+            }
+
             Some(fragment)
         } else {
             None
@@ -202,6 +216,12 @@ impl PaperdollFactory {
     pub fn remove_slot(&mut self, id: u32) -> Option<Slot> {
         if let Some(slot) = self.slots.remove(&id) {
             self.slot_id_factory.remove(id);
+
+            for doll in &mut self.dolls.values_mut() {
+                if let Some(position) = doll.slots.iter().position(|slot_id| *slot_id == id) {
+                    doll.slots.remove(position);
+                }
+            }
 
             Some(slot)
         } else {
@@ -241,31 +261,33 @@ impl PaperdollFactory {
                     );
                 }
 
-                let mut image = ImageData {
-                    width: fragment.image.width,
-                    height: fragment.image.height,
-                    color_type: fragment.image.color_type,
-                    ..Default::default()
-                };
+                for position in &slot.positions {
+                    let mut image = ImageData {
+                        width: fragment.image.width,
+                        height: fragment.image.height,
+                        color_type: fragment.image.color_type,
+                        ..Default::default()
+                    };
 
-                let position = if slot.constrainted {
-                    image.width = slot.width;
-                    image.height = slot.height;
+                    let position = if slot.constrainted {
+                        image.width = slot.width;
+                        image.height = slot.height;
 
-                    slot.position
-                } else {
-                    slot.position + slot.anchor - fragment.pivot
-                };
+                        *position
+                    } else {
+                        *position + slot.anchor - fragment.pivot
+                    };
 
-                if !only_id {
-                    image.pixels = fragment.image.pixels.clone();
+                    if !only_id {
+                        image.pixels = fragment.image.pixels.clone();
+                    }
+
+                    slots.push(RenderPiece {
+                        id: *fragment_id,
+                        position,
+                        image,
+                    });
                 }
-
-                slots.push(RenderPiece {
-                    id: *fragment_id,
-                    position,
-                    image,
-                });
             } else {
                 if slot.required {
                     bail!(

@@ -14,8 +14,9 @@ pub struct Slot {
     pub constrainted: bool,
 
     /// Slot's top left position in the doll.
-    #[serde(default, skip_serializing_if = "Point::is_zero")]
-    pub position: Point,
+    /// One slot can have multiple positions.
+    #[serde(default = "default_positions", skip_serializing_if = "Vec::is_empty")]
+    pub positions: Vec<Point>,
     #[serde(default, skip_serializing_if = "is_zero")]
     pub width: u32,
     #[serde(default, skip_serializing_if = "is_zero")]
@@ -34,7 +35,7 @@ impl Slot {
             desc: String::default(),
             required: false,
             constrainted: false,
-            position: Point::default(),
+            positions: default_positions(),
             width: 0,
             height: 0,
             anchor: Point::default(),
@@ -45,4 +46,8 @@ impl Slot {
     pub fn id(&self) -> u32 {
         self.id
     }
+}
+
+fn default_positions() -> Vec<Point> {
+    vec![Point::default()]
 }
