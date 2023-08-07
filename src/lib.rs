@@ -11,3 +11,5 @@ pub mod slot;
 
 mod builder;
 mod id_factory;
+
+pub const VERSION: u32 = 1;
