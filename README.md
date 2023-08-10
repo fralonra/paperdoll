@@ -34,9 +34,9 @@ Fragments are image assets that you can put into a slot as candidates. In `paper
 
 There are two ways slots and their fragment candidates are connected.
 
-- **Constrained**. The fragment acts like the background of the slot. It will fill the whole space of the slot and resizes if needed.
+- **Constrainted**. The fragment acts like the background of the slot. It will fill the whole space of the slot and resizes if needed.
 
-- **Non-constrained**. Slots and fragments are connected like mortises and tenons. There is an anchor point inside a slot. When a fragment is placed into a slot, the pivot point of that fragment will be placed in the same position as the anchor point. The fragment remains its original size and resizing will never happen.
+- **Non-constrainted**. Slots and fragments are connected like mortises and tenons. There is an anchor point inside a slot. When a fragment is placed into a slot, the pivot point of that fragment will be placed in the same position as the anchor point. The fragment remains its original size and resizing will never happen.
 
 ![core-concept](https://raw.githubusercontent.com/fralonra/paperdoll/master/doc/paperdoll-concept.png)
 

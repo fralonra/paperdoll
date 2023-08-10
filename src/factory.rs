@@ -15,7 +15,53 @@ use crate::{
     slot::Slot,
 };
 
+/// A factory helps you manage the `paperdoll` project.
+///
+/// It stores all the data used in the project, and generates images for rendering.
+///
+/// # Examples
+///
+/// ```
+/// use paperdoll::PaperdollFactory;
+///
+/// let mut factory = PaperdollFactory::default();
+///
+/// // Creates a new fragment.
+/// let fragment_id = factory.add_fragment().unwrap();
+///
+/// // Stores a single black pixel in this fragment.
+/// let fragment = factory.get_fragment_mut(fragment_id).unwrap();
+/// fragment.image.width = 1;
+/// fragment.image.height = 1;
+/// fragment.image.pixels = vec![0, 0, 0, 255];
+///
+/// // Creates a new slot.
+/// let slot_id = factory.add_slot().unwrap();
+///
+/// // Adds previous fragment to candidates of this slot.
+/// let slot = factory.get_slot_mut(slot_id).unwrap();
+/// slot.candidates.push(fragment_id);
+///
+/// // Creates a new doll.
+/// let doll_id = factory.add_doll().unwrap();
+///
+/// // Resizes this doll and adds previous slot to this doll.
+/// let doll = factory.get_doll_mut(doll_id).unwrap();
+/// doll.width = 1;
+/// doll.height = 1;
+/// doll.slots.push(slot_id);
+///
+/// // Creates a Paperdoll struct which uses
+/// let paperdoll = factory.builder()
+///     .doll(doll_id)
+///     .set_slot(slot_id, fragment_id)
+///     .build();
+///
+/// // Gets the image data for rendering this paperdoll.
+/// let image_data = factory.render_paperdoll(&paperdoll).unwrap();
+/// ```
 pub struct PaperdollFactory {
+    /// The meta data of the project.
     pub meta: Meta,
 
     doll_id_factory: IdFactory,
@@ -34,15 +80,11 @@ impl Default for PaperdollFactory {
 }
 
 impl PaperdollFactory {
-    pub fn from_manifest(manifest: Manifest) -> Result<Self> {
-        Self::new(
-            manifest.meta,
-            manifest.dolls,
-            manifest.slots,
-            manifest.fragments,
-        )
-    }
-
+    /// Creates a paper doll factory. Will create an empty doll if there is no doll in `doll_list`.
+    ///
+    /// # Errors
+    ///
+    /// - Will return an error if there are duplicated ids for dolls, slots, or fragments.
     pub fn new(
         meta: Meta,
         doll_list: Vec<Doll>,
@@ -101,6 +143,25 @@ impl PaperdollFactory {
         })
     }
 
+    /// Creates a paper doll factory from the given manifest.
+    ///
+    /// Calls [`Self::new`] under the hood.
+    pub fn from_manifest(manifest: Manifest) -> Result<Self> {
+        Self::new(
+            manifest.meta,
+            manifest.dolls,
+            manifest.slots,
+            manifest.fragments,
+        )
+    }
+
+    /// Adds a new doll to the factory.
+    ///
+    /// Returns the id of the doll.
+    ///
+    /// # Errors
+    ///
+    /// - Will return an error if the id pool is full.
     pub fn add_doll(&mut self) -> Result<u32> {
         let doll = Doll::new(
             self.doll_id_factory
@@ -115,6 +176,13 @@ impl PaperdollFactory {
         Ok(id)
     }
 
+    /// Adds a new fragment to the factory.
+    ///
+    /// Returns the id of the fragment.
+    ///
+    /// # Errors
+    ///
+    /// - Will return an error if the id pool is full.
     pub fn add_fragment(&mut self) -> Result<u32> {
         let fragment = Fragment::new(
             self.fragment_id_factory
@@ -129,6 +197,13 @@ impl PaperdollFactory {
         Ok(id)
     }
 
+    /// Adds a new slot to the factory.
+    ///
+    /// Returns the id of the slot.
+    ///
+    /// # Errors
+    ///
+    /// - Will return an error if the id pool is full.
     pub fn add_slot(&mut self) -> Result<u32> {
         let slot = Slot::new(
             self.slot_id_factory
@@ -143,6 +218,16 @@ impl PaperdollFactory {
         Ok(id)
     }
 
+    /// Returns the structure of the paper doll.
+    /// Can be used later for drawing the paper doll as a replacement for [`Self::render`] if you want to handle the rendering process yourself.
+    ///
+    /// # Arguments
+    ///
+    /// - `doll`: The id of the doll to be displayed.
+    /// - `slot_map`: A map with the id of slot as key and the id of fragment which is used in this slot as value.
+    /// - `only_id`: Whether the result `RenderMaterial` needs to contain the pixel data of the images?
+    /// If `true`, the pixel data will be cloned.
+    /// It's recommended to set this to `false` if you do not rely on pixels returning here for rendering, eg. you have stored the pixel data elsewhere.
     pub fn analyse(
         &self,
         doll: u32,
@@ -239,6 +324,9 @@ impl PaperdollFactory {
         })
     }
 
+    /// Returns the structure of the given paperdoll.
+    ///
+    /// Calls [`Self::analyse`] under the hood.
     pub fn analyse_paperdoll(
         &self,
         paperdoll: &Paperdoll,
@@ -247,42 +335,54 @@ impl PaperdollFactory {
         self.analyse(paperdoll.doll, &paperdoll.slot_map, only_id)
     }
 
+    /// Returns a builder to construct [`Paperdoll`].
     pub fn builder(&self) -> PaperdollBuilder {
         PaperdollBuilder::new(&self.dolls, &self.slots, &self.fragments)
     }
 
+    /// Returns an iterator over all ids of dolls.
     pub fn dolls(&self) -> Iter<u32, Doll> {
         self.dolls.iter()
     }
 
+    /// Returns an iterator over all ids of fragments.
     pub fn fragments(&self) -> Iter<u32, Fragment> {
         self.fragments.iter()
     }
 
+    /// Returns a reference to the doll with the given id.
     pub fn get_doll(&self, id: u32) -> Option<&Doll> {
         self.dolls.get(&id)
     }
 
+    /// Returns a mutable reference to the doll with the given id.
     pub fn get_doll_mut(&mut self, id: u32) -> Option<&mut Doll> {
         self.dolls.get_mut(&id)
     }
 
+    /// Returns a reference to the fragment with the given id.
     pub fn get_fragment(&self, id: u32) -> Option<&Fragment> {
         self.fragments.get(&id)
     }
 
+    /// Returns a mutable reference to the fragment with the given id.
     pub fn get_fragment_mut(&mut self, id: u32) -> Option<&mut Fragment> {
         self.fragments.get_mut(&id)
     }
 
+    /// Returns a reference to the slot with the given id.
     pub fn get_slot(&self, id: u32) -> Option<&Slot> {
         self.slots.get(&id)
     }
 
+    /// Returns a mutable reference to the slot with the given id.
     pub fn get_slot_mut(&mut self, id: u32) -> Option<&mut Slot> {
         self.slots.get_mut(&id)
     }
 
+    /// Removes the doll with the given id from the factory.
+    ///
+    /// Returns the removed doll if it was previously in the factory, otherwise returns [`None`].
     pub fn remove_doll(&mut self, id: u32) -> Option<Doll> {
         if let Some(doll) = self.dolls.remove(&id) {
             self.doll_id_factory.remove(id);
@@ -297,6 +397,9 @@ impl PaperdollFactory {
         }
     }
 
+    /// Removes the fragment with the given id from the factory.
+    ///
+    /// Returns the removed fragment if it was previously in the factory, otherwise returns [`None`].
     pub fn remove_fragment(&mut self, id: u32) -> Option<Fragment> {
         if let Some(fragment) = self.fragments.remove(&id) {
             self.fragment_id_factory.remove(id);
@@ -317,6 +420,9 @@ impl PaperdollFactory {
         }
     }
 
+    /// Removes the slot with the given id from the factory.
+    ///
+    /// Returns the removed slot if it was previously in the factory, otherwise returns [`None`].
     pub fn remove_slot(&mut self, id: u32) -> Option<Slot> {
         if let Some(slot) = self.slots.remove(&id) {
             self.slot_id_factory.remove(id);
@@ -333,6 +439,12 @@ impl PaperdollFactory {
         }
     }
 
+    /// Returns the image data for rendering purpose.
+    ///
+    /// # Arguments
+    ///
+    /// - `doll`: The id of the doll to be displayed.
+    /// - `slot_map`: A map with the id of slot as key and the id of fragment which is used in this slot as value.
     pub fn render(&self, doll: u32, slot_map: &HashMap<u32, u32>) -> Result<ImageData> {
         let material = self.analyse(doll, slot_map, false)?;
 
@@ -457,14 +569,19 @@ impl PaperdollFactory {
         }
     }
 
+    /// Returns the image data to render the given paperdoll.
+    ///
+    /// Calls [`Self::render`] under the hood.
     pub fn render_paperdoll(&self, paperdoll: &Paperdoll) -> Result<ImageData> {
         self.render(paperdoll.doll, &paperdoll.slot_map)
     }
 
+    /// Returns an iterator over all ids of slots.
     pub fn slots(&self) -> Iter<u32, Slot> {
         self.slots.iter()
     }
 
+    /// Creates a manifest based on the data of this factory.
     pub fn to_manifest(&self) -> Manifest {
         Manifest {
             meta: self.meta.clone(),

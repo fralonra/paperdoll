@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use anyhow::{bail, Result};
 
-pub struct IdFactory {
+pub(crate) struct IdFactory {
     cursor: u32,
     set: HashSet<u32>,
 }

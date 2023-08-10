@@ -2,9 +2,15 @@ use std::ops;
 
 use serde::{Deserialize, Serialize};
 
+/// A coordinate used in `paperdoll`.
+///
+/// The positive X-axis is rightward.
+/// The positive Y-axis is downward.
 #[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
 pub struct Point {
+    /// The distance from the Y-axis
     pub x: f32,
+    /// The distance from the X-axis
     pub y: f32,
 }
 

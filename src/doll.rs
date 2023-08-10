@@ -5,22 +5,36 @@ use crate::{
     image::ImageData,
 };
 
+/// The fundamental part of the paper doll model.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Doll {
     id: u32,
 
+    /// The description of the doll.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub desc: String,
+
+    /// The width of the doll in pixels.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub width: u32,
+
+    /// The height of the doll in pixels.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub height: u32,
+
+    /// The offset of the background image of the doll.
     #[serde(default, skip_serializing_if = "Point::is_zero")]
     pub offset: Point,
 
+    /// A list of id of [slots](crate::Slot) those can be used in the doll.
     pub slots: Vec<u32>,
 
+    /// The path of the background image.
+    ///
+    /// Leave empty if no background.
     pub path: String,
+
+    /// The data of the background image.
     #[serde(skip)]
     pub image: ImageData,
 }
