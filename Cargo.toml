@@ -9,6 +9,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/fralonra/paperdoll"
 keywords = ["paperdoll"]
+exclude = [".gitignore", ".github/*", "doc/*"]
 
 [dependencies]
 anyhow = "1.0"
