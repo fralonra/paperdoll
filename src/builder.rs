@@ -30,6 +30,10 @@ impl<'a> PaperdollBuilder<'a> {
     }
 
     /// Sets the doll to be displayed.
+    ///
+    /// # Panics
+    ///
+    /// - Panics if the doll with the given id is not found.
     pub fn doll(mut self, id: u32) -> Self {
         if !self.dolls.contains_key(&id) {
             panic!("Invalid key for doll: {}", id);
@@ -40,6 +44,10 @@ impl<'a> PaperdollBuilder<'a> {
     }
 
     /// Sets the fragment to be used in the given slot.
+    ///
+    /// # Panics
+    ///
+    /// - Panics if the slot or fragment with the given id is not found.
     pub fn set_slot(mut self, slot_id: u32, fragment_id: u32) -> Self {
         if !self.slots.contains_key(&slot_id) {
             panic!("Invalid key for slot: {}", slot_id);
