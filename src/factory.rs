@@ -248,7 +248,11 @@ impl PaperdollFactory {
                 .get_slot(*slot_id)
                 .ok_or(anyhow!("Failed to find slot with id {}", slot_id))?;
 
-            if let Some(fragment_id) = slot_map.get(slot_id) {
+            let fragment_id = slot_map
+                .get(slot_id)
+                .or_else(|| slot.required.then(|| slot.candidates.first()).flatten());
+
+            if let Some(fragment_id) = fragment_id {
                 let fragment = self
                     .get_fragment(*fragment_id)
                     .ok_or(anyhow!("Failed to find fragment with id {}", fragment_id))?;
@@ -286,13 +290,6 @@ impl PaperdollFactory {
                         position,
                         image,
                     });
-                }
-            } else {
-                if slot.required {
-                    bail!(
-                        "Slot with id {} requires an image to be drawn but not found",
-                        slot_id
-                    );
                 }
             }
         }
