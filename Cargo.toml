@@ -1,6 +1,6 @@
 [package]
 name = "paperdoll"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Fralonra <zoronlivingston@gmail.com>"]
 description = "2D paper doll model"
 edition = "2021"
