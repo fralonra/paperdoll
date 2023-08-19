@@ -46,6 +46,10 @@ There are two ways slots and their fragment candidates are connected.
 
 `ppd` is a tar archive container for `paperdoll`. [Read more](https://github.com/fralonra/paperdoll-tar).
 
+## Integrations
+
+- [bevy-paperdoll](https://github.com/fralonra/bevy-paperdoll) for [Bevy](https://github.com/bevyengine/bevy).
+
 ## Tools
 
 - [PpdEditor](https://github.com/fralonra/ppd-editor)
